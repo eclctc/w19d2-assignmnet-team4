@@ -22,6 +22,14 @@ Output:
     - results/qtable.json      : Saved Q-table for evaluation
     - results/report.html      : Interactive results report
     - results/scores.json      : Training scores history
+
+
+Team 4:
+Lizze Howard - Exploration
+Stephan Caamano - Reward Shaping
+Mark Hunter - Learning Rate
+Brett Coleman - State Representation
+
 """
 
 # =============================================================================
