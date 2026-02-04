@@ -282,29 +282,33 @@ class QLearningAgent:
           - Angle-based penalty
           - Velocity penalty
           - Position bonus
+          - Potential-based shaping (provably safe!)
 
         WARNING: Be careful not to make total rewards negative!
         """
         # ========== MODIFY HERE: REWARD SHAPING ==========
-        return base_reward
 
-        # IDEAS:
-        # 1. Angle-based penalty (encourage upright pole):
-        #    angle_penalty = abs(state[2]) * 2
-        #    return base_reward - angle_penalty
-        #
-        # 2. Velocity penalty (encourage smooth control):
-        #    vel_penalty = abs(state[1]) * 0.1 + abs(state[3]) * 0.1
-        #    return base_reward - vel_penalty
-        #
-        # 3. Center position bonus:
-        #    pos_penalty = abs(state[0]) * 0.5
-        #    return base_reward - pos_penalty
-        #
-        # 4. Potential-based shaping (provably safe):
-        #    def potential(s): return -abs(s[2])
-        #    F = self.discount_factor * potential(next_state) - potential(state)
-        #    return base_reward + F
+        # Angle-based penalty: encourage pole to stay upright
+        # Higher penalty when pole angle deviates from 0
+        angle_penalty = abs(state[2]) * 6
+
+        # Velocity penalty: encourage smooth control
+        # Penalize both cart velocity and pole angular velocity
+        velocity_penalty = abs(state[1]) * 0.3 + abs(state[3]) * 0.3
+
+        # Combine penalties
+        total_penalty = angle_penalty + velocity_penalty
+
+        # Potential-based shaping (provably safe - preserves optimal policy)
+        # Formula: F(s, a, s') = gamma * Phi(s') - Phi(s)
+        # where Phi(s) = -abs(pole_angle) encourages smaller angles
+        def potential(s):
+            return -abs(s[2])  # Negative absolute pole angle
+
+        gamma = self.discount_factor  # 0.99
+        F = gamma * potential(next_state) - potential(state)
+
+        return base_reward - total_penalty + F
         # ===================================================
 
     def update(self, state, action, reward, next_state, done):
