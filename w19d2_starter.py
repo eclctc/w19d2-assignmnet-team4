@@ -165,11 +165,30 @@ class QLearningAgent:
         # ========== MODIFY HERE: BINNING STRATEGY ==========
         num_bins = self.num_bins
 
+        # Non-uniform binning: finer resolution near 0 for angle and angular velocity
+        # This helps the agent make finer adjustments when near equilibrium
+        
+        # Pole Angle: Finer between -0.05 and 0.05
+        angle_fine = np.linspace(-0.05, 0.05, num_bins)
+        angle_coarse_neg = np.linspace(-0.25, -0.05, num_bins // 2)
+        angle_coarse_pos = np.linspace(0.05, 0.25, num_bins // 2)
+        pole_angle_bins = np.sort(np.unique(np.concatenate([
+            angle_coarse_neg, angle_fine, angle_coarse_pos
+        ])))
+
+        # Pole Velocity: Finer between -0.5 and 0.5
+        vel_fine = np.linspace(-0.5, 0.5, num_bins)
+        vel_coarse_neg = np.linspace(-3.5, -0.5, num_bins // 2)
+        vel_coarse_pos = np.linspace(0.5, 3.5, num_bins // 2)
+        pole_vel_bins = np.sort(np.unique(np.concatenate([
+             vel_coarse_neg, vel_fine, vel_coarse_pos
+        ])))
+
         return {
             "cart_pos": np.linspace(-2.4, 2.4, num_bins),
             "cart_vel": np.linspace(-3, 3, num_bins),
-            "pole_angle": np.linspace(-0.21, 0.21, num_bins * 2),  # Finer for angle
-            "pole_vel": np.linspace(-3, 3, num_bins),
+            "pole_angle": pole_angle_bins,
+            "pole_vel": pole_vel_bins,
         }
 
         # IDEAS:
